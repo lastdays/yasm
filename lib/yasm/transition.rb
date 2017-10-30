@@ -1,0 +1,3 @@
+class Yasm::Transition
+  
+end
