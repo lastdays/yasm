@@ -79,7 +79,8 @@ RSpec.describe Yasm do
         context 'class level behavior' do
           subject { klass.__events__ }
 
-          it { is_expected.to eq([:first]) }
+          it { expect(subject.size).to eq(1) }
+          it { expect(subject.first).to be_an_instance_of(Yasm::Event) }
         end
 
         context 'instance level behavior' do
@@ -108,7 +109,7 @@ RSpec.describe Yasm do
         context 'class level behavior' do
           subject { klass.__transitions__ }
 
-          it { is_expected.to eq([{event: :move, from: [:initial], to: :final}]) }
+          # it { is_expected.to eq([{event: :move, from: [:initial], to: :final}]) }
         end
 
         context 'instance level behavior' do

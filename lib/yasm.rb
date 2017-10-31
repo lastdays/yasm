@@ -1,6 +1,7 @@
 require "yasm/version"
 require 'yasm/transition'
 require 'yasm/transitions'
+require 'yasm/event'
 require 'pry'
 
 module Yasm
@@ -44,26 +45,25 @@ module Yasm
     end
 
     def event(name)
-      (@__events__ ||= []).push(name)
-      @__current_event__ = name
+      event = Yasm::Event.new(name)
+      (@__events__ ||= []).push(event)
+      @__current_event__ = event
       yield if block_given?
       @__current_event__ = nil
 
       define_method("#{name}") do
-        tr = self.class.__transitions__
-          .select { |t| t[:event] == name }
-          .select { |t| t[:from].include?(@__state__) }
+        tr = event.transitions
+          .select { |t| t.from.include?(@__state__) }
 
-        self.state = tr.first[:to] if tr && tr.first
+        self.state = tr.first.to if tr && tr.first
       end
 
       define_method("#{name}!") do
-        tr = self.class.__transitions__
-          .select { |t| t[:event] == name }
-          .select { |t| t[:from].include?(@__state__) }
+        tr = event.transitions
+          .select { |t| t.from.include?(@__state__) }
 
         if tr && tr.first
-          self.state = tr.first[:to] 
+          self.state = tr.first.to
         else
           raise Yasm::TransitionNotPermitted
         end
@@ -72,7 +72,7 @@ module Yasm
 
     def transition(params)
       params[:from] = [params[:from]].flatten
-      (@__transitions__ ||= []).push(params.merge(event: @__current_event__))
+      @__current_event__.transitions.push(Yasm::Transition.new(from: params[:from], to: params[:to]))
     end
   end
 end

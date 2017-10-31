@@ -3,7 +3,7 @@ class Yasm::Transitions
 
   attr_accessor :data
 
-  def intitalize(transitions)
+  def initialize(transitions)
     raise StandardError unless transitions.is_a?(Array)
     @data = transitions 
   end
@@ -13,7 +13,7 @@ class Yasm::Transitions
   end
 
   def push(transition)
-    raise StandardError unless transition.is_a(Transition)
+    raise StandardError unless transition.is_a?(Yasm::Transition)
     @data.push(transition)
   end
 end
