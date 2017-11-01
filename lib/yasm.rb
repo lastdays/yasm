@@ -6,6 +6,9 @@ require 'pry'
 
 module Yasm
   TransitionNotPermitted = Class.new(StandardError)
+  EventAlreadyDefined = Class.new(StandardError)
+  StateAlreadyDefined = Class.new(StandardError)
+  MissingState = Class.new(StandardError)
 
   def self.included(target)
     target.extend(self::ClassMethods)
@@ -28,13 +31,19 @@ module Yasm
   end
 
   module ClassMethods
-    attr_accessor :__states__, :__events__, :__transitions__, :__initial__
+    attr_reader :__states__, :__events__, :__transitions__
 
     def state_machine
       yield if block_given?
     end
 
+    def __initial__
+      @__initial__ || (@__states__ && @__states__.first)
+    end
+
     def state(*names, **options)
+      raise Yasm::StateAlreadyDefined if __states__ && (__states__ & names).any?
+
       (@__states__ ||= []).push(*names)
       initial = options.fetch(:initial, false)
       @__initial__ = names.first if initial
@@ -46,6 +55,8 @@ module Yasm
 
     def event(name)
       event = Yasm::Event.new(name)
+      raise Yasm::EventAlreadyDefined if __events__ && __events__.find { |e| e.name == name }
+
       (@__events__ ||= []).push(event)
       @__current_event__ = event
       yield if block_given?
@@ -72,6 +83,8 @@ module Yasm
 
     def transition(params)
       params[:from] = [params[:from]].flatten
+      raise Yasm::MissingState if (params[:from] - __states__).any?
+      raise Yasm::MissingState if ([params[:to]] - __states__).any?
       @__current_event__.transitions.push(Yasm::Transition.new(from: params[:from], to: params[:to]))
     end
   end
