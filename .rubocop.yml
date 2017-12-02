@@ -1,0 +1,14 @@
+Metrics/BlockLength:
+  ExcludedMethods: ['describe', 'context']
+Metrics/LineLength:
+  Max: 120
+Style/Documentation:
+  Enabled: false
+Lint/AmbiguousBlockAssociation:
+  Enabled: false
+AllCops:
+  Exclude:
+    - 'yasm.gemspec'
+    - 'bin/*'
+    - 'Rakefile'
+    - 'Gemfile'

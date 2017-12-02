@@ -4,11 +4,11 @@ RSpec.describe Yasm::Transitions do
   describe 'instance behavior' do
     describe '#intialize' do
       context 'when argumnet is array' do
-        let(:arg) { [1,2,3] }
+        let(:arg) { [1, 2, 3] }
 
         it 'initialize' do
           obj = described_class.new(arg)
-          expect(obj.data).to match_array([1,2,3])
+          expect(obj.data).to match_array([1, 2, 3])
         end
       end
 
@@ -35,6 +35,6 @@ RSpec.describe Yasm::Transitions do
 
         it { expect { described_class.new(arg) }.to raise_error }
       end
-    end    
+    end
   end
 end

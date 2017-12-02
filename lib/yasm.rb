@@ -1,4 +1,4 @@
-require "yasm/version"
+require 'yasm/version'
 require 'yasm/transition'
 require 'yasm/transitions'
 require 'yasm/event'
@@ -62,16 +62,16 @@ module Yasm
       yield if block_given?
       @__current_event__ = nil
 
-      define_method("#{name}") do
+      define_method(name.to_s) do
         tr = event.transitions
-          .select { |t| t.from.include?(@__state__) }
+                  .select { |t| t.from.include?(@__state__) }
 
         self.state = tr.first.to if tr && tr.first
       end
 
       define_method("#{name}!") do
         tr = event.transitions
-          .select { |t| t.from.include?(@__state__) }
+                  .select { |t| t.from.include?(@__state__) }
 
         if tr && tr.first
           self.state = tr.first.to

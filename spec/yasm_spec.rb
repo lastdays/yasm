@@ -1,4 +1,4 @@
-require "spec_helper"
+require 'spec_helper'
 
 RSpec.describe Yasm do
   let!(:klass) do
@@ -47,7 +47,7 @@ RSpec.describe Yasm do
             context 'class level behavior' do
               subject { klass.__states__ }
 
-              it { is_expected.to match_array([:first, :second, :third]) }
+              it { is_expected.to match_array(%i[first second third]) }
               it { expect(klass.__initial__).to eq(:first) }
             end
 
@@ -168,7 +168,7 @@ RSpec.describe Yasm do
                 end
               end
             end
-          end 
+          end
 
           context 'instance level behavior' do
             let(:obj) { klass.new }
