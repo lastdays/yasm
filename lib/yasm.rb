@@ -62,30 +62,38 @@ module Yasm
       yield if block_given?
       @__current_event__ = nil
 
+      __define_regular_event(event, name)
+      __define_bang_event(event, name)
+    end
+
+    def __define_regular_event(event, name)
       define_method(name.to_s) do
         tr = event.transitions
                   .select { |t| t.from.include?(@__state__) }
 
         self.state = tr.first.to if tr && tr.first
       end
+    end
 
+    def __define_bang_event(event, name)
       define_method("#{name}!") do
         tr = event.transitions
                   .select { |t| t.from.include?(@__state__) }
 
-        if tr && tr.first
-          self.state = tr.first.to
-        else
-          raise Yasm::TransitionNotPermitted
-        end
+        self.state = tr.first.to if tr && tr.first
+        raise Yasm::TransitionNotPermitted unless tr && tr.first
       end
     end
 
     def transition(params)
       params[:from] = [params[:from]].flatten
+      __validate_transition_params!(params)
+      @__current_event__.transitions.push(Yasm::Transition.new(from: params[:from], to: params[:to]))
+    end
+
+    def __validate_transition_params!(params)
       raise Yasm::MissingState if (params[:from] - __states__).any?
       raise Yasm::MissingState if ([params[:to]] - __states__).any?
-      @__current_event__.transitions.push(Yasm::Transition.new(from: params[:from], to: params[:to]))
     end
   end
 end
