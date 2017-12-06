@@ -154,6 +154,60 @@ RSpec.describe Yasm do
         end
       end
 
+      context 'guards' do
+        context 'lambda guards' do
+          context 'evalueted to `false`' do
+            before do
+              klass.class_eval do
+                state_machine do
+                  state :initial, initial: true
+                  state :final
+                  event :move do
+                    transition from: :initial, to: :final, guard: -> { false }
+                  end
+                end
+              end
+            end
+
+            it '' do
+              obj = klass.new
+              expect { obj.move }.to_not change { obj.state }
+
+              obj = klass.new
+              expect { obj.move! }.to raise_error(Yasm::TransitionNotPermitted)
+            end
+          end
+        end
+
+        context 'method guards' do
+          context 'evalueted to `false`' do
+            before do
+              klass.class_eval do
+                state_machine do
+                  state :initial, initial: true
+                  state :final
+                  event :move do
+                    transition from: :initial, to: :final, guard: :falsy_guard
+                  end
+                end
+
+                def falsy_guard
+                  false
+                end
+              end
+            end
+
+            it '' do
+              obj = klass.new
+              expect { obj.move }.to_not change { obj.state }
+
+              obj = klass.new
+              expect { obj.move! }.to raise_error(Yasm::TransitionNotPermitted)
+            end
+          end
+        end
+      end
+
       context 'invalid params' do
         context 'trasition applied to wrong initial state' do
           before do

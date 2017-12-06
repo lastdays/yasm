@@ -69,7 +69,7 @@ module Yasm
     def __define_regular_event(event, name)
       define_method(name.to_s) do
         tr = event.transitions
-                  .select { |t| t.from.include?(@__state__) }
+                  .select { |t| t.from.include?(@__state__) && t.evaluate_guard(self) }
 
         self.state = tr.first.to if tr && tr.first
       end
@@ -78,7 +78,7 @@ module Yasm
     def __define_bang_event(event, name)
       define_method("#{name}!") do
         tr = event.transitions
-                  .select { |t| t.from.include?(@__state__) }
+                  .select { |t| t.from.include?(@__state__) && t.evaluate_guard(self) }
 
         self.state = tr.first.to if tr && tr.first
         raise Yasm::TransitionNotPermitted unless tr && tr.first
@@ -88,7 +88,9 @@ module Yasm
     def transition(params)
       params[:from] = [params[:from]].flatten
       __validate_transition_params!(params)
-      @__current_event__.transitions.push(Yasm::Transition.new(from: params[:from], to: params[:to]))
+      @__current_event__
+        .transitions
+        .push(Yasm::Transition.new(from: params[:from], to: params[:to], guard: params[:guard]))
     end
 
     def __validate_transition_params!(params)
